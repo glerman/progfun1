@@ -121,8 +121,12 @@ import org.scalatest.junit.JUnitRunner
   }
 
   test("sum empty list")(assert(sum(Nil) === 0))
+  test("sum null list")(assert(sum(null) === 0))
   test("max empty list"){
-    intercept[IllegalArgumentException](max(Nil))
+    intercept[NoSuchElementException](max(Nil))
+  }
+  test("max null list"){
+    intercept[NoSuchElementException](max(null))
   }
 
 

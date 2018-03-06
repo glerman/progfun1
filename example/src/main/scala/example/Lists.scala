@@ -24,8 +24,9 @@ object Lists {
    * @return The sum of all elements in `xs`
    */
     def sum(xs: List[Int]): Int = xs match {
-      case null => 0
-      case _ => xs.fold(0)((x, y) => x + y)
+      case null | Nil => 0
+      case x::Nil => x
+      case x::xps => x + sum(xps)
     }
   
   /**
@@ -42,7 +43,8 @@ object Lists {
    * @throws java.util.NoSuchElementException if `xs` is an empty list
    */
     def max(xs: List[Int]): Int = xs match {
-      case null | Nil => throw new IllegalArgumentException
-      case _ => xs.fold(Int.MinValue)((x, y) => Math.max(x, y))
+      case null | Nil => throw new NoSuchElementException
+      case x::Nil => x
+      case x::xps => Math.max(x, max(xps))
     }
   }
