@@ -28,20 +28,13 @@ object Main {
 
       @tailrec
       def balanceIter(openAcc: Int, chars: List[Char]): Boolean = {
-        openAcc match {
-          case 0 =>
-            findParentheses(0, chars) match {
-              case (_, -1) => true
-              case (false, _) => false
-              case (true, i) => balanceIter(openAcc + 1, takeRightAfterIdx(chars, i))
-            }
-          case x if x > 0 =>
-            findParentheses(0, chars) match {
-              case (_, -1) => false
-              case (false, i) => balanceIter(openAcc - 1, takeRightAfterIdx(chars, i))
-              case (true, i) => balanceIter(openAcc + 1, takeRightAfterIdx(chars, i))
-            }
-          case x if x < 0 => throw new IllegalArgumentException
+        findParentheses(0, chars) match {
+          case (_, -1) if openAcc == 0 => true
+          case (_, -1) if openAcc > 0 => false
+          case (true, i) if openAcc == 0 => balanceIter(openAcc + 1, takeRightAfterIdx(chars, i))
+          case (true, i) if openAcc > 0 => balanceIter(openAcc + 1, takeRightAfterIdx(chars, i))
+          case (false, _) if openAcc == 0 => false
+          case (false, i) if openAcc > 0 => balanceIter(openAcc - 1, takeRightAfterIdx(chars, i))
         }
       }
 
