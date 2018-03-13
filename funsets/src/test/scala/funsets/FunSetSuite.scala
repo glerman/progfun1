@@ -22,7 +22,7 @@ class FunSetSuite extends FunSuite {
    *
    * Operators
    *  - test
-   *  - ignore
+   *  -
    *  - pending
    */
 
@@ -74,12 +74,16 @@ class FunSetSuite extends FunSuite {
    */
 
   trait TestSets {
-    val s1 = singletonSet(1)
-    val s2 = singletonSet(2)
-    val s3 = singletonSet(3)
-    val s12 = union(s1, s2)
-    val s1IntersectS12 = intersect(s12, s1)
-    val s2IntersectS12 = intersect(s12, s2)
+    val s1: Set = singletonSet(1)
+    val s2: Set = singletonSet(2)
+    val s3: Set = singletonSet(3)
+    val s12: Set = union(s1, s2)
+    val s1IntersectS12: Set = intersect(s12, s1)
+    val s2IntersectS12: Set = intersect(s12, s2)
+    val ten: Set = x => x <= 10 && x >= -10
+    val positives: Set = x => x >= 0
+    val smallerThan10: Set = x => x < 10
+    val even: Set = filter(ten, x => x % 2 == 0)
   }
 
   /**
@@ -124,39 +128,67 @@ class FunSetSuite extends FunSuite {
   }
 
   test("diff") {
-    val positives: Set = x => x >= 0
-    val smallerThan10: Set = x => x < 10
+    new TestSets {
+      val set: Set = diff(positives, smallerThan10)
+      assert(contains(set, 11))
+      assert(contains(set, 10))
+      assert(contains(set, 100))
+      assert(!contains(set, 5))
+      assert(!contains(set, 9))
+      assert(!contains(set, -15))
 
-    val set = diff(positives, smallerThan10)
-    assert(contains(set, 11))
-    assert(contains(set, 10))
-    assert(contains(set, 100))
-    assert(!contains(set, 5))
-    assert(!contains(set, 9))
-    assert(!contains(set, -15))
-
-    printSet(set)
+      printSet(set)
+    }
   }
 
   test("filter") {
-    val ten: Set = x => x <= 10 && x >= -10
+    new TestSets {
+      assert(contains(ten, 9))
+      assert(contains(ten, -9))
+      assert(contains(ten, 0))
 
-    assert(contains(ten, 9))
-    assert(contains(ten, -9))
-    assert(contains(ten, 0))
+      printSet(ten)
+      printSet(even)
 
-    val even = filter(ten, x => x % 2 == 0)
-    printSet(ten)
-    printSet(even)
-
-    assert(!contains(even, 9))
-    assert(!contains(even, -9))
-    assert(contains(even, 0))
-    assert(contains(even, 2))
-    assert(contains(even, -2))
+      assert(!contains(even, 9))
+      assert(!contains(even, -9))
+      assert(contains(even, 0))
+      assert(contains(even, 2))
+      assert(contains(even, -2))
+    }
   }
 
+  test("forall") {
+    new TestSets {
+      assert(forall(ten, x => x < 20))
+      assert(forall(even, x => x % 2 == 0))
+      assert(forall(positives, x => x >= 0))
+      assert(forall(smallerThan10, x => x < 10))
+      assert(forall(s1, x => x == 1))
 
+      val oneAndTwo: Set = x => x == 1 || x == 2
+      assert(!forall(oneAndTwo, a => Math.abs(a % 2) == 1))
+    }
+  }
+
+  test("exists") {
+    new TestSets {
+      assert(exists(ten, x => x == -10))
+      assert(exists(ten, x => x < 5 && x > 3))
+      assert(!exists(smallerThan10, x => x > 17))
+      assert(!exists(even, x => Math.abs(x % 2) == 1))
+    }
+  }
+
+  test("map") {
+    new TestSets {
+      val s4: Set = map(s2, x => 2 * x)
+      assert(contains(s4, 4))
+      assert(!contains(s4, 2))
+      assert(forall(map(positives, x => -x), x => x <= 0))
+      assert(forall(map(even, x => x + 1), x => Math.abs(x % 2) == 1))
+    }
+  }
 
 
 }
