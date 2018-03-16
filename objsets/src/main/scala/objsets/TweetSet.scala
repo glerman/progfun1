@@ -35,6 +35,7 @@ class Tweet(val user: String, val text: String, val retweets: Int) {
  * [1] http://en.wikipedia.org/wiki/Binary_search_tree
  */
 abstract class TweetSet {
+  val size: Int
   val isEmpty: Boolean
 
   /**
@@ -110,6 +111,7 @@ abstract class TweetSet {
 }
 
 class Empty extends TweetSet {
+  val size: Int = 0
   def filterAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet = acc
   
   /**
@@ -139,6 +141,7 @@ class Empty extends TweetSet {
 class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
 
     val isEmpty: Boolean = false
+    val size: Int = 1 + left.size + right.size
 
     val _elem: Tweet = elem
     val _left: TweetSet = left
@@ -178,14 +181,7 @@ class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
     right.foreach(f)
   }
 
-  def union(that: TweetSet): TweetSet = {
-    that.union(left).union(right).incl(elem)
-  }
-
-//  def unionAcc(that: TweetSet, acc: TweetSet): TweetSet = {
-//    if (that.isEmpty) acc
-//    else unionAcc(that.asInstanceOf[NonEmpty].left, unionAcc(that.asInstanceOf[NonEmpty].right))
-//  }
+  def union(that: TweetSet): TweetSet = that.union(left).union(right).incl(elem)
 
   def mostRetweeted: Tweet = {
     val leftMost = left.mostRetweeted
@@ -229,12 +225,12 @@ object GoogleVsApple {
   val google = List("android", "Android", "galaxy", "Galaxy", "nexus", "Nexus")
   val apple = List("ios", "iOS", "iphone", "iPhone", "ipad", "iPad")
 
-  def tweetContainsPhrases(phrases: List[String]): Tweet => Boolean = t => phrases.map(phrase => t.text.contains(phrase)).fold(false)((b1, b2) => b1 || b2)
+  def tweetContainsPhrases(phrases: List[String]): Tweet => Boolean = t => phrases.exists(phrase => t.text.contains(phrase))
 
   lazy val allTweets: TweetSet = TweetReader.allTweets
   lazy val googleTweets: TweetSet = allTweets.filter(tweetContainsPhrases(google))
   lazy val appleTweets: TweetSet = allTweets.filter(tweetContainsPhrases(apple))
-  
+
   /**
    * A list of all tweets mentioning a keyword from either apple or google,
    * sorted by the number of retweets.
