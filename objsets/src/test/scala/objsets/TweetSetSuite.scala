@@ -68,6 +68,8 @@ class TweetSetSuite extends FunSuite {
       val trends = set5.descendingByRetweet
       assert(!trends.isEmpty)
       assert(trends.head.user == "a" || trends.head.user == "b")
+      assert(trends.size === 4)
+      assert(trends.tail.tail.head.user === "d")
     }
   }
 
