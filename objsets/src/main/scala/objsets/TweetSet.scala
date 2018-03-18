@@ -181,8 +181,14 @@ class NonEmpty(val elem: Tweet, val left: TweetSet, val right: TweetSet) extends
     that match {
       case e: Empty => this
       case nonEmptyThat: NonEmpty =>
-        if (elem.text < nonEmptyThat.elem.text) new NonEmpty(nonEmptyThat.elem, new NonEmpty(elem, left, new Empty).union(nonEmptyThat.right), nonEmptyThat.right).union(right)
-        else if (elem.text > nonEmptyThat.elem.text) new NonEmpty(elem, new NonEmpty(nonEmptyThat.elem, nonEmptyThat.left, new Empty).union(left), nonEmptyThat.right).union(nonEmptyThat.right)
+        if (elem.text < nonEmptyThat.elem.text) {
+          val smallerThanThatElem = new NonEmpty(elem, left, new Empty).union(nonEmptyThat.right)
+          new NonEmpty(nonEmptyThat.elem, smallerThanThatElem, nonEmptyThat.right).union(right)
+        }
+        else if (elem.text > nonEmptyThat.elem.text) {
+          val smallerThanThisElem = new NonEmpty(nonEmptyThat.elem, nonEmptyThat.left, new Empty).union(left)
+          new NonEmpty(elem, smallerThanThisElem, nonEmptyThat.right).union(nonEmptyThat.right)
+        }
         else new NonEmpty(elem, left.union(nonEmptyThat.left), nonEmptyThat.right).union(right)
     }
   }
@@ -243,7 +249,6 @@ object GoogleVsApple {
   }
 
 object Main extends App {
-  GoogleVsApple.appleTweets foreach println
   // Print the trending tweets
   GoogleVsApple.trending foreach println
 }
