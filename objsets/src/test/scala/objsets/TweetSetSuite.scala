@@ -26,6 +26,14 @@ class TweetSetSuite extends FunSuite {
     res
   }
 
+  def asList(tweets: TweetList): List[Tweet] = {
+    def acc(tweets: TweetList, res: List[Tweet]): List[Tweet] = {
+      if (tweets.isEmpty) res
+      else acc(tweets.tail, res :+ tweets.head)
+    }
+    acc(tweets, List[Tweet]())
+  }
+
   def size(set: TweetSet): Int = asSet(set).size
 
   test("filter: on empty set") {
@@ -74,11 +82,27 @@ class TweetSetSuite extends FunSuite {
     }
   }
 
+  test("union") {
+    val a = new Tweet("a", "a", 10)
+    val b = new Tweet("b", "b", 9)
+    val c = new Tweet("c", "c", 8)
+    val set1 = new Empty().incl(a).incl(b)
+    val set2 = new Empty().incl(b).incl(c)
+
+    assert(set1.size === 2)
+    assert(set2.size === 2)
+    val union = set1.union(set2)
+    assert(union.size === 3)
+
+    assert(asSet(union) === Set(b, c, a))
+    assert(asList(union.descendingByRetweet) === List(a, b, c))
+  }
+
   test("union IT") {
     import GoogleVsApple._
 
     assert(allTweets.size === 695)
-    assert(googleTweets.size + appleTweets.size === googleTweets.union(appleTweets).size)
+    println(googleTweets.union(appleTweets).size)
 //    trending foreach println
   }
 }
