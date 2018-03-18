@@ -138,14 +138,10 @@ class Empty extends TweetSet {
 
 }
 
-class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
+class NonEmpty(val elem: Tweet, val left: TweetSet, val right: TweetSet) extends TweetSet {
 
     val isEmpty: Boolean = false
     val size: Int = 1 + left.size + right.size
-
-    val _elem: Tweet = elem
-    val _left: TweetSet = left
-    val _right: TweetSet = right
 
     override def toString: String = "[" + left.toString + "." + elem + "." + right.toString + "]"
 
@@ -181,7 +177,15 @@ class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
     right.foreach(f)
   }
 
-  def union(that: TweetSet): TweetSet = that.union(left).union(right).incl(elem)
+  def union(that: TweetSet): TweetSet = {
+    that match {
+      case e: Empty => this
+      case nonEmptyThat: NonEmpty =>
+        if (elem.text < nonEmptyThat.elem.text) new NonEmpty(nonEmptyThat.elem, new NonEmpty(elem, left, new Empty).union(nonEmptyThat.right), nonEmptyThat.right).union(right)
+        else if (elem.text > nonEmptyThat.elem.text) new NonEmpty(elem, new NonEmpty(nonEmptyThat.elem, nonEmptyThat.left, new Empty).union(left), nonEmptyThat.right).union(nonEmptyThat.right)
+        else new NonEmpty(elem, left.union(nonEmptyThat.left), nonEmptyThat.right).union(right)
+    }
+  }
 
   def mostRetweeted: Tweet = {
     val leftMost = left.mostRetweeted
