@@ -182,12 +182,12 @@ class NonEmpty(val elem: Tweet, val left: TweetSet, val right: TweetSet) extends
       case e: Empty => this
       case nonEmptyThat: NonEmpty =>
         if (elem.text < nonEmptyThat.elem.text) {
-          val smallerThanThatElem = new NonEmpty(elem, left, new Empty).union(nonEmptyThat.right)
+          val smallerThanThatElem = new NonEmpty(elem, left, new Empty).union(nonEmptyThat.left)
           new NonEmpty(nonEmptyThat.elem, smallerThanThatElem, nonEmptyThat.right).union(right)
         }
         else if (elem.text > nonEmptyThat.elem.text) {
           val smallerThanThisElem = new NonEmpty(nonEmptyThat.elem, nonEmptyThat.left, new Empty).union(left)
-          new NonEmpty(elem, smallerThanThisElem, nonEmptyThat.right).union(nonEmptyThat.right)
+          new NonEmpty(elem, smallerThanThisElem, right).union(nonEmptyThat.right)
         }
         else new NonEmpty(elem, left.union(nonEmptyThat.left), nonEmptyThat.right).union(right)
     }

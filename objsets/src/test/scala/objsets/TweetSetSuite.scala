@@ -8,6 +8,7 @@ import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class TweetSetSuite extends FunSuite {
+
   trait TestSets {
     val set1 = new Empty
     val set2 = set1.incl(new Tweet("a", "a body", 20))
@@ -73,4 +74,11 @@ class TweetSetSuite extends FunSuite {
     }
   }
 
+  test("union IT") {
+    import GoogleVsApple._
+
+    assert(allTweets.size === 695)
+    assert(googleTweets.size + appleTweets.size === googleTweets.union(appleTweets).size)
+//    trending foreach println
   }
+}
