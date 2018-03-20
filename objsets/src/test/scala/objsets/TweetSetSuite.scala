@@ -102,7 +102,10 @@ class TweetSetSuite extends FunSuite {
     import GoogleVsApple._
 
     assert(allTweets.size === 695)
-    println(googleTweets.union(appleTweets).size)
-//    trending foreach println
+    val all = googleTweets.union(appleTweets)
+    println(all.size)
+    assert(all.size === trending.size)
+    assert(asList(trending).size === trending.size)
+    assert(asList(trending).map(_.retweets) === asSet(all).toList.map(_.retweets).sorted.reverse)
   }
 }

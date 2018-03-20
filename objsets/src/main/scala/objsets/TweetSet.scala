@@ -196,8 +196,11 @@ class NonEmpty(val elem: Tweet, val left: TweetSet, val right: TweetSet) extends
   def mostRetweeted: Tweet = {
     val leftMost = left.mostRetweeted
     val rightMost = right.mostRetweeted
-    if (leftMost.retweets > rightMost.retweets) if (leftMost.retweets > elem.retweets) leftMost else rightMost
-    else if (rightMost.retweets > elem.retweets) rightMost else elem
+    if (leftMost.retweets > rightMost.retweets) {
+      if (leftMost.retweets > elem.retweets) leftMost else elem
+    }
+    else if (rightMost.retweets > elem.retweets) rightMost
+    else elem
   }
 
   def descendingByRetweet: TweetList = {
