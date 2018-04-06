@@ -2,6 +2,8 @@ package patmat
 
 import common._
 
+import scala.collection.immutable
+
 /**
  * Assignment 4: Huffman coding
  *
@@ -80,7 +82,7 @@ object Huffman {
         groupBy(c => c).
         map{ case (char, list) => (char, list.size) }.
         toList
-  
+
   /**
    * Returns a list of `Leaf` nodes for a given frequency table `freqs`.
    *
@@ -96,7 +98,7 @@ object Huffman {
   /**
    * Checks whether the list `trees` contains only one single code tree.
    */
-    def singleton(trees: List[CodeTree]): Boolean = ???
+    def singleton(trees: List[CodeTree]): Boolean = trees.size == 1
   
   /**
    * The parameter `trees` of this function is a list of code trees ordered
@@ -110,7 +112,18 @@ object Huffman {
    * If `trees` is a list of less than two elements, that list should be returned
    * unchanged.
    */
-    def combine(trees: List[CodeTree]): List[CodeTree] = ???
+    // Felt like implementing in O(n) time so using addTreeToCorrectPosition instead of makeOrderedLeafList which is O(nlog(n))
+    def combine(trees: List[CodeTree]): List[CodeTree] = trees match {
+      case x :: y :: xs => addTreeToCorrectPosition(makeCodeTree(x, y), xs)
+      case xs => xs
+    }
+
+    //O(n) time and memory
+    def addTreeToCorrectPosition(tree: CodeTree, trees: List[CodeTree]): List[CodeTree] = trees match {
+      case Nil => List(tree)
+      case x :: xs => if (weight(tree) <= weight(x)) tree :: x :: xs else x :: addTreeToCorrectPosition(tree, xs)
+    }
+
   
   /**
    * This function will be called in the following way:
@@ -129,7 +142,11 @@ object Huffman {
    *    the example invocation. Also define the return type of the `until` function.
    *  - try to find sensible parameter names for `xxx`, `yyy` and `zzz`.
    */
-    def until(xxx: ???, yyy: ???)(zzz: ???): ??? = ???
+    def until(stop: List[CodeTree] => Boolean, combiner: List[CodeTree] => List[CodeTree])(trees: List[CodeTree]): CodeTree =
+      if (stop(trees))
+        trees.head
+      else
+        until(stop, combiner)(combiner(trees))
   
   /**
    * This function creates a code tree which is optimal to encode the text `chars`.
@@ -137,8 +154,7 @@ object Huffman {
    * The parameter `chars` is an arbitrary text. This function extracts the character
    * frequencies from that text and creates a code tree based on them.
    */
-    def createCodeTree(chars: List[Char]): CodeTree = ???
-  
+    def createCodeTree(chars: List[Char]): CodeTree = until(singleton, combine)(makeOrderedLeafList(times(chars)))
 
   // Part 3: Decoding
 
