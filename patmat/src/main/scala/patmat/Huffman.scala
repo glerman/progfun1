@@ -2,6 +2,7 @@ package patmat
 
 import common._
 
+import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.collection.immutable
 
@@ -165,17 +166,17 @@ object Huffman {
    * This function decodes the bit sequence `bits` using the code tree `tree` and returns
    * the resulting list of characters.
    */
-    def decode(tree: CodeTree, bits: List[Bit]): List[Char] = decodeAcc(tree, bits, List()).reverse
+    def decode(tree: CodeTree, bits: List[Bit]): List[Char] = decodeAcc(tree, bits, List())
 
     def decodeAcc(tree: CodeTree, bits: List[Bit], message: List[Char]): List[Char] = bits match {
       case Nil => message
       case _ :: _ =>
         val remainingBitsAndDecodedChar: (List[Bit], Char) = decodeChar(tree, bits)
-        decodeAcc(tree, remainingBitsAndDecodedChar._1, remainingBitsAndDecodedChar._2 :: message)
+        decodeAcc(tree, remainingBitsAndDecodedChar._1, message :+ remainingBitsAndDecodedChar._2)
     }
 
     def decodeChar(tree: CodeTree, bits: List[Bit]): (List[Bit], Char) = tree match {
-      case Leaf(char, _) => (bits.tail, char)
+      case Leaf(char, _) => (bits, char)
       case Fork(left, right, _, _) =>
         assert(bits.nonEmpty, "Expecting to run out of bits when hitting a leaf to decode the last char of the code")
         if (bits.head == 0)
@@ -209,8 +210,23 @@ object Huffman {
    * This function encodes `text` using the code tree `tree`
    * into a sequence of bits.
    */
-    def encode(tree: CodeTree)(text: List[Char]): List[Bit] = ???
-  
+    def encode(tree: CodeTree)(text: List[Char]): List[Bit] = encodeAcc(tree, text, Nil)
+
+    def encodeAcc(tree: CodeTree, text: List[Char], code: List[Bit]): List[Bit] = text match {
+      case Nil => code
+      case x :: xs => encodeAcc(tree, xs, code ++: encodeChar(tree, x, Nil))
+    }
+
+    @tailrec
+    def encodeChar(tree: CodeTree, char: Char, charCode: List[Bit]): List[Bit] = tree match {
+      case Leaf(_, _) => charCode
+      case Fork(left, right, _, _) =>
+        if (chars(left).contains(char))
+          encodeChar(left, char, 0 :: charCode)
+        else
+          encodeChar(right, char, 1 :: charCode)
+    }
+
   // Part 4b: Encoding using code table
 
   type CodeTable = List[(Char, List[Bit])]
