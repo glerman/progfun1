@@ -168,6 +168,7 @@ object Huffman {
    */
     def decode(tree: CodeTree, bits: List[Bit]): List[Char] = decodeAcc(tree, bits, List())
 
+
     def decodeAcc(tree: CodeTree, bits: List[Bit], message: List[Char]): List[Char] = bits match {
       case Nil => message
       case _ :: _ =>
@@ -178,7 +179,6 @@ object Huffman {
     def decodeChar(tree: CodeTree, bits: List[Bit]): (List[Bit], Char) = tree match {
       case Leaf(char, _) => (bits, char)
       case Fork(left, right, _, _) =>
-        assert(bits.nonEmpty, "Expecting to run out of bits when hitting a leaf to decode the last char of the code")
         if (bits.head == 0)
           decodeChar(left, bits.tail)
         else
@@ -222,9 +222,9 @@ object Huffman {
       case Leaf(_, _) => charCode
       case Fork(left, right, _, _) =>
         if (chars(left).contains(char))
-          encodeChar(left, char, 0 :: charCode)
+          encodeChar(left, char, charCode :+ 0)
         else
-          encodeChar(right, char, 1 :: charCode)
+          encodeChar(right, char, charCode :+ 1)
     }
 
   // Part 4b: Encoding using code table
