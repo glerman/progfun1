@@ -2,6 +2,7 @@ package patmat
 
 import common._
 
+import scala.collection.JavaConverters._
 import scala.collection.immutable
 
 /**
@@ -164,8 +165,25 @@ object Huffman {
    * This function decodes the bit sequence `bits` using the code tree `tree` and returns
    * the resulting list of characters.
    */
-    def decode(tree: CodeTree, bits: List[Bit]): List[Char] = ???
-  
+    def decode(tree: CodeTree, bits: List[Bit]): List[Char] = decodeAcc(tree, bits, List()).reverse
+
+    def decodeAcc(tree: CodeTree, bits: List[Bit], message: List[Char]): List[Char] = bits match {
+      case Nil => message
+      case _ :: _ =>
+        val remainingBitsAndDecodedChar: (List[Bit], Char) = decodeChar(tree, bits)
+        decodeAcc(tree, remainingBitsAndDecodedChar._1, remainingBitsAndDecodedChar._2 :: message)
+    }
+
+    def decodeChar(tree: CodeTree, bits: List[Bit]): (List[Bit], Char) = tree match {
+      case Leaf(char, _) => (bits.tail, char)
+      case Fork(left, right, _, _) =>
+        assert(bits.nonEmpty, "Expecting to run out of bits when hitting a leaf to decode the last char of the code")
+        if (bits.head == 0)
+          decodeChar(left, bits.tail)
+        else
+          decodeChar(right, bits.tail)
+    }
+
   /**
    * A Huffman coding tree for the French language.
    * Generated from the data given at
@@ -182,7 +200,7 @@ object Huffman {
   /**
    * Write a function that returns the decoded secret
    */
-    def decodedSecret: List[Char] = ???
+    def decodedSecret: List[Char] = decode(frenchCode, secret)
   
 
   // Part 4a: Encoding using Huffman tree

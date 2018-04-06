@@ -55,4 +55,8 @@ class HuffmanSuite extends FunSuite {
     }
   }
 
+  test("french secret") {
+    print(decodedSecret)
+  }
+
 }
