@@ -168,7 +168,7 @@ object Huffman {
    */
     def decode(tree: CodeTree, bits: List[Bit]): List[Char] = decodeAcc(tree, bits, List())
 
-
+    @tailrec
     def decodeAcc(tree: CodeTree, bits: List[Bit], message: List[Char]): List[Char] = bits match {
       case Nil => message
       case _ :: _ =>
@@ -176,6 +176,7 @@ object Huffman {
         decodeAcc(tree, remainingBitsAndDecodedChar._1, message :+ remainingBitsAndDecodedChar._2)
     }
 
+    @tailrec
     def decodeChar(tree: CodeTree, bits: List[Bit]): (List[Bit], Char) = tree match {
       case Leaf(char, _) => (bits, char)
       case Fork(left, right, _, _) =>
