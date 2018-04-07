@@ -213,6 +213,7 @@ object Huffman {
    */
     def encode(tree: CodeTree)(text: List[Char]): List[Bit] = encodeAcc(tree, text, Nil)
 
+    @tailrec
     def encodeAcc(tree: CodeTree, text: List[Char], code: List[Bit]): List[Bit] = text match {
       case Nil => code
       case x :: xs => encodeAcc(tree, xs, code ++: encodeChar(tree, x, Nil))
